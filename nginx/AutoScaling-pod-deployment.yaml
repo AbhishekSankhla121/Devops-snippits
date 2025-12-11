@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-horizontal-autoscale
+  namespace: nginx
+spec:
+  selector:
+    matchLabels:
+      name: nginx-horizontal-autoscale
+  template:
+    metadata:
+      labels:
+        name: nginx-horizontal-autoscale
+    spec:
+      containers:
+      - name: nginx-autoscaling
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        resources: 
+          limits:
+            cpu: 500m  #pod only can use maximum 500 millicores (0.5 CPU)
+            memory: 256Mi
+          requests:
+            cpu: 100m  #pod requires 200 millicores to run #200m 0.2 cpu(20% of one cpu core) 
+            memory: 50Mi
+
+

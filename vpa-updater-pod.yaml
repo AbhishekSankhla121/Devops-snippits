@@ -1,0 +1,182 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    cni.projectcalico.org/containerID: 2cce79e39a845275841bf0abfad39544d2f109ea2fcc134f147b3f6449cf44ee
+    cni.projectcalico.org/podIP: 10.10.119.25/32
+    cni.projectcalico.org/podIPs: 10.10.119.25/32
+  creationTimestamp: "2025-12-09T10:02:21Z"
+  generateName: vpa-updater-6cf6bc7ff8-
+  generation: 1
+  labels:
+    app: vpa-updater
+    pod-template-hash: 6cf6bc7ff8
+  name: vpa-updater-6cf6bc7ff8-dkjxn
+  namespace: kube-system
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicaSet
+    name: vpa-updater-6cf6bc7ff8
+    uid: c63e2451-0997-4dd9-b7fe-63c72e0d5427
+  resourceVersion: "69440"
+  uid: 6ae86183-f505-40ef-a2d0-4759c018d046
+spec:
+  containers:
+  - env:
+    - name: NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    image: registry.k8s.io/autoscaling/vpa-updater:1.5.1
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /health-check
+        port: prometheus
+        scheme: HTTP
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    name: updater
+    ports:
+    - containerPort: 8943
+      name: prometheus
+      protocol: TCP
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /health-check
+        port: prometheus
+        scheme: HTTP
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    resources:
+      limits:
+        cpu: 200m
+        memory: 1000Mi
+      requests:
+        cpu: 50m
+        memory: 500Mi
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-v9g8b
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: k9s-worker1.abhishek.local
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+  serviceAccount: vpa-updater
+  serviceAccountName: vpa-updater
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: kube-api-access-v9g8b
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2025-12-09T10:02:28Z"
+    observedGeneration: 1
+    status: "True"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2025-12-09T10:02:21Z"
+    observedGeneration: 1
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2025-12-09T10:02:28Z"
+    observedGeneration: 1
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2025-12-09T10:02:28Z"
+    observedGeneration: 1
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2025-12-09T10:02:21Z"
+    observedGeneration: 1
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - allocatedResources:
+      cpu: 50m
+      memory: 500Mi
+    containerID: containerd://365c5473d89f5598e1d7b825c45cbc0c7e090191a21026d04e825db1f594c054
+    image: registry.k8s.io/autoscaling/vpa-updater:1.5.1
+    imageID: registry.k8s.io/autoscaling/vpa-updater@sha256:cba2aa4b323968de80a3d77429ee67fb456d8eaf3487475ab75a5d705539f018
+    lastState: {}
+    name: updater
+    ready: true
+    resources:
+      limits:
+        cpu: 200m
+        memory: 1000Mi
+      requests:
+        cpu: 50m
+        memory: 500Mi
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2025-12-09T10:02:28Z"
+    user:
+      linux:
+        gid: 65534
+        supplementalGroups:
+        - 65534
+        uid: 65534
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-v9g8b
+      readOnly: true
+      recursiveReadOnly: Disabled
+  hostIP: 10.38.22.209
+  hostIPs:
+  - ip: 10.38.22.209
+  observedGeneration: 1
+  phase: Running
+  podIP: 10.10.119.25
+  podIPs:
+  - ip: 10.10.119.25
+  qosClass: Burstable
+  startTime: "2025-12-09T10:02:21Z"
