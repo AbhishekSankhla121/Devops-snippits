@@ -1,25 +1,60 @@
-sudo kubeadm reset –f 
+#!/bin/bash
+set -euo pipefail
 
-sudo rm -rf /etc/cni/net.d 
+echo "🛑 Stopping kubelet..."
+sudo systemctl stop kubelet || true
+sudo systemctl disable kubelet || true
 
-sudo rm -rf /var/lib/cni/ 
+echo "🔫 Killing any leftover kubelet process..."
+sudo pkill kubelet || true
 
-sudo rm -rf /var/lib/kubelet/* 
+echo "🔄 Resetting kubeadm..."
+sudo kubeadm reset -f
 
-sudo rm -rf /etc/kubernetes/ 
+echo "🧹 Cleaning Kubernetes state..."
+sudo rm -rf \
+  /etc/kubernetes \
+  /var/lib/kubelet \
+  /var/lib/etcd \
+  /etc/cni/net.d \
+  /var/lib/cni \
+  /var/lib/calico \
+  /var/run/kubernetes
 
-sudo rm -rf /var/run/kubernetes 
+echo "🌐 Cleaning CNI interfaces..."
+for link in cni0 flannel.1; do
+  sudo ip link delete "$link" 2>/dev/null || true
+done
 
-sudo rm -rf /var/run/dockershim 
+for link in $(ip -o link show | awk -F': ' '{print $2}' | grep '^cali'); do
+  sudo ip link delete "$link" 2>/dev/null || true
+done
 
-sudo rm -rf /var/lib/etcd 
+echo "🗑 Cleaning kube config..."
+rm -rf "$HOME/.kube"
 
-sudo rm -rf /var/lib/calico 
+echo "🔄 Restarting container runtime..."
+if systemctl is-active --quiet containerd; then
+  sudo systemctl restart containerd
+elif systemctl is-active --quiet docker; then
+  sudo systemctl restart docker
+else
+  echo "❌ No container runtime found"
+  exit 1
+fi
 
-rm -rf ~/.kube 
+echo "🚫 Disabling swap..."
+sudo swapoff -a
+sudo sed -i '/ swap / s/^/#/' /etc/fstab
 
-sudo systemctl restart kubelet 
+echo "🔓 Re-enabling kubelet..."
+sudo systemctl enable kubelet
 
-sudo apt-get update  
+echo "🔍 Verifying port 10250 is free..."
+if sudo ss -lntp | grep -q 10250; then
+  echo "❌ Port 10250 still in use"
+  sudo ss -lntp | grep 10250
+  exit 1
+fi
 
-sudo swapoff -a 
+echo "✅ Node reset complete. Ready for kubeadm join."
