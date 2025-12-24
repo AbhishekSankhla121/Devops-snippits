@@ -1,0 +1,32 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: my-created-persistent-volume
+  labels:
+    type: local
+spec:
+  storageClassName: pv-demo
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: '/home/abhishek/Desktop/practice_k9s/kubernetes_snippets/volumes/persistent-volume/'
+  # nodeAffinity:
+  #   required:
+  #     nodeSelectorTerms:
+  #       - matchExpressions:
+  #         - key: kubernetes.io/hostname
+  #           operator: In 
+  #           values:
+  #             - k9s-master.abhishek.local
+
+    # storageClassName: pv-demo is what links PersistentVolumeClaim to PersistentVolume
+    # the retain reclaim ppolicy allows for manual reclamtion of the resource .
+    #  when the persistentVolumeClaim is deleted, the persistentVolume still exists
+
+
+    # The access modes are 
+    # 1. ReadWriteOnce: the volume can be mounted as read-write by a single node RWO
+    # 2. ReadOnlyMany: the volumes can be mounted read-only by many nodes ROX
+    # 3. ReadWriteMany: the volumes can be mounted as read-write by many nodes 
