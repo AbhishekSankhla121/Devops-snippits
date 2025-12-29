@@ -9,19 +9,19 @@ WORKERS=(
   "abhishek@k9s-worker.abhishek.local"
 )
 
-echo "📁 Creating kube config directory..."
+echo "Creating kube config directory..."
 mkdir -p "$KUBE_DIR"
 
-echo "📄 Copying admin kubeconfig..."
+echo "Copying admin kubeconfig..."
 sudo cp /etc/kubernetes/admin.conf "$KUBE_CONFIG"
 
-echo "🔑 Fixing permissions..."
+echo "Fixing permissions..."
 sudo chown "$(id -u):$(id -g)" "$KUBE_CONFIG"
 chmod 600 "$KUBE_CONFIG"
 
-echo "🚀 Distributing kubeconfig to workers..."
+echo "Distributing kubeconfig to workers..."
 for NODE in "${WORKERS[@]}"; do
-  echo "➡️  Copying kubeconfig to $NODE"
+  echo "Copying kubeconfig to $NODE"
   ssh "$NODE" "mkdir -p ~/.kube"
   scp "$KUBE_CONFIG" "$NODE:~/.kube/config"
 done
