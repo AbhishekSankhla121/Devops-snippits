@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap  # inject the realease name inot the template 
+  {{- template "mychart.labels" . }}    # using the template
+                                        #  while using template we need to provide the current context . to the template
+                                        #  problem with template call the function and prints immediately
+                                        #  where as using include : call the functions and returns a string , we can use piped and recommeded by helm doc
+data:
+# why we are using the quote function every where ?
+#  converts any value into a propely quoted yaml string
+  DATABASE_CONNECTION_STRING: {{ .Values.database.connectionString | default "tea" | quote }} # here instead of calling quote argument , we inverted the order , we sent the arg to the funct using a pipeleing (|) we can now chain several functions together
+  JWT_SECRET: {{ .Values.backend.jwt_secret | quote }}
+  
+
+  # using if else condition
+  {{- if eq .Values.frontend.frontend_url "http://beyoond.frontend.local:30856" }}
+  FRONTEND_URL: {{ .Values.frontend.frontend_url | quote }}
+  {{- else }}
+  FRONTEND_URL: {{ "http://beyoond.frontend.local:30856/" | quote }}
+  {{- end }}
+
+  # modifying scope using with
+  # with controls the variable scoping, recall that . is the reference to the current scope . 
+  # so . Values tells  the template to find the claues object in current scope
+  {{- with .Values.backend }}
+  PORT: {{ .port | quote }}
+  # or we can use $ for accessing the object Release.Name from the parent scope
+  REALEASE: {{ $.Release.Name | quote }}
+  {{- end }}
+
+
+# this section is not related to current project setup with helm
+  # Looping with range action 
+  toppings: |- # |- marjer in yaml takes multi line sting . this can be a usefule etchnique for embedding big blocks of data inside of your manifest 
+    {{- range .Values.learning.pizzaToppings }}
+      - {{ . | quote }}
+    {{- end }}
+
+# Working with variable 
+# in  helm template a variable is an nameed reference to another object 
+# it follows the $name form
+#  variables are assigned with a special assignment operator :=
+
+# example
+# relname is variable that store the Realease.Name value 
+#  now we can use this value anywhere 
+
+  {{- $relname := .Release.Name -}}
+  release: {{ $relname }}
+  {{- with .Values.backend }}
+  realease_name: {{ $relname | quote }} # .Release.Name  is not in the scope but we still can use the value using variable 
+  {{- end }}
+
+#  variables are particularly useful in range loops . 
+#  they can be use on list-like objects to capture bith the index and the value
+# example
+  {{- range $index, $toppings := .Values.learning.pizzaToppings }}
+  {{ $index }}: {{ $toppings | quote }}
+  {{- end }}
+
+# For data structure that we have both a key and value 
+#  we can use range to get both
+#  example 
+  {{- range $key,$value := .Values.learning.favorite }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+
+
+  #  variables are  normally not "global"
+  # they are  scoped to the block in which they are declared 
+
+  {{- include "mychart.labels" . }} # using include function to use the named template 
+                                    # where as using include : call the functions and returns a string , we can use piped and recommeded by helm doc    
+
+
+#*** 
+# Accessing Files Inside Templates
+# this makes it easy to import one template from within another template 
+#***
+
+  {{- $fileName := .Files }}
+  {{- range tuple "config1.toml" "config2.toml" "config.toml" }}
+  {{ . }}: |-
+    {{ $fileName.Get . }}
+  {{- end }}
+  # alterative we can use file reading with encoding the data 
+  message: {{ $.Files.Get "config1.toml" | b64enc }}
+
+
+# ***
+# Subcharts and Global Values 
+#  we have been working only with one chart
+# but charts can have dependencies call subcharts
+#  they also have their own values and template 
+
+# 1 subchart is considered " stand alone ", which means it can never explicitly depend on its parent chart 
+# 2 subchart cannot access the value of its parent 
+# 3 parent chart can overeride values for the subcharts
+# ***
+
+
+  salad: {{ .Values.global.salad }}  # accesssing the gloobal variable
+  
+  # template commeting 
+{{- /*
+This is a comment.
+*/}}
+

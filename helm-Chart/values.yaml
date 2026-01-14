@@ -1,0 +1,37 @@
+# values : values passed into the template from the values.yaml file and from user-supplied files bu default values is empty
+database:
+  connectionString: mongodb://admin:admin@mongo-service:27017/abhishek?authSource=admin
+backend:
+  jwt_secret: super-secret-key-123
+  port: '5000'
+frontend:  
+  frontend_Url: http://beyoond.frontend.local:30856
+
+  # this section is not related to current project setup with helm
+learning:
+  pizzaToppings:
+    - mushrooms
+    - cheese
+    - peppers
+    - onions
+    - pineapple    
+  favorite:
+    drink: coffee
+    food: pizza
+
+#***
+# this is parent overide the value of child sub chart in our case its /charts/subchart
+# because beeyond-helm is a parendt ,  we can specify configuration in beeyond-helm and have that configuration pushed into mysubchart
+#  modify beeyond-helm/values.yaml
+# ***
+mysubchart:
+  dessert: ice cream
+
+
+# ***
+# Global chart values
+# global vales are values that can be accessed from any chart subchart
+#  globale require explicit declaration
+# *** 
+global:
+  salad: caesor

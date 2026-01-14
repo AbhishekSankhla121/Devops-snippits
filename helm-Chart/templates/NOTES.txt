@@ -1,0 +1,2 @@
+// this thing print at the end of helm install or helm upgrade command
+Thank you for installing {{ .Chart.Name }}.

@@ -1,0 +1,10 @@
+#  because ever subchart is stand alone we can test subchart on it own
+# because beeyond-helm is a parendt ,  we can specify configuration in beeyond-helm and have that configuration pushed into mysubchart
+#  modify beeyond-helm/values.yaml
+apiVersion: v1
+kind: configmap
+metadata: 
+  name: {{ .Release.Name }}-cfgmap2
+data:
+  dessert: {{ .Values.dessert }}
+  salad: {{ .Values.global.salad }}
