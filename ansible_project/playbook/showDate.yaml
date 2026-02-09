@@ -1,0 +1,8 @@
+
+- name: showing current date on worker node
+  hosts: worker
+  tasks:
+  - name: display current date 
+    command: date
+  - name: display current date AGAIN!!
+    command: date

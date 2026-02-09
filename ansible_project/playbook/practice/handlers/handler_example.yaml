@@ -1,0 +1,48 @@
+
+#*** handler: running operations on change ***
+# - sometime we want to run task only when a change is made on a machine .
+
+#  In Other words 
+# [-] handlers are typically used to start, reload , restart, and stop services.
+# [-] if  your playbook  involves  changing configurations files , there is high chance that  you'll need to restart the service so that change take effect 
+
+# example:
+#  you may want to restart a service if task updates the configuration of that service  
+
+
+- name: copy the updateted html file to nginx and reload nginx using handler 
+  hosts: master 
+  become: true
+  tasks:
+
+    - name: verify the old nginx config
+      command: cat /var/www/html/index.html
+ 
+    - name: change the permisson of file path   /var/www/html/index.html
+      file:
+        path: /var/www/html/index.html
+        state: file
+        mode: 0777
+
+    - name: copy index.html to nginx 
+      copy:
+        src: ./index.html
+        dest: /var/www/html/index.html
+      notify:                   # Task can instruct on or more handlre execute using notify keyword.
+        - Stop nginx
+
+    - name: verify the new nginx config
+      command: cat /var/www/html/index.html
+  handlers:
+    - name: Stop nginx
+      ansible.builtin.service:
+        name: nginx
+        state: stopped
+
+
+        # state: stopped
+        # state: started
+        # state: restarted
+        # state: reloaded
+
+

@@ -1,0 +1,131 @@
+- name: "loops and time function"
+  hosts: master
+  
+  vars:
+    worker:
+      ks_worker: k9s-worker.abhishek.local
+      ks_worker1: k9s-worker1.abhishek.local
+    break_at: 3
+    list_of_items:
+      - 1
+      - [2,3]
+      - 4
+    server_configs:
+      web_one:
+        ip_address: 1.2.3.4.5.6
+        role: "full stack"
+      web_two:
+        ip_address: 6.5.4.3.2.1
+        role: "mern stack" 
+  
+  tasks:
+  # list the dictornary
+    - name: simple looping 
+      debug:
+        msg: "host={{ item.key }} addr={{ item.value }}"
+      loop: "{{ worker | dict2items  }}"
+
+#  displat list 
+    - name: Iterate over simple list 
+      debug:
+        msg: "{{ item }}"
+      loop:
+        - item_0
+        - item_1
+#  display the dictonary again dn't knw wwhy i repate again!! oh we use register  so
+    - name: Iterating over a dictionary
+      debug:
+        msg: |
+          values={{ item }} 
+          keys={{ item.key }}
+          values={{ item.value  }}
+          ip_address={{ item.value.ip_address }}
+          role={{ item.value.role }}
+      loop: "{{ server_configs | dict2items }}"
+      register: data
+
+    - name: print register data
+      debug:
+       msg: "{{ data.results | flatten(3) }}"
+
+#   using of query to display all host available in invntory 
+    - name: ensure list input for loop using query rather than lookup
+      debug:
+  
+        msg: "{{ item }}"
+      loop: "{{ query('inventory_hostnames','all') }}"
+
+#   try  all looop controls
+    - name: loop with loop control
+      debug:
+        msg: "{{ outer_item }} at index {{ my_Index }} and loop_var {{ outer_item }}"
+      loop: "{{ list_of_items | flatten(1) }}"
+      loop_control:  # To keep track of where you are in loop 
+        break_when: my_Index == break_at # to break from loop
+        index_var: my_Index # give the current index while looping 
+        label: "{{ outer_item }}"
+        loop_var: outer_item # rename {{ item }}
+      # no_log: true         #this will sensore the data in case we are using sensitive data 
+        # pause: 3           # control in time (in sec) pause between the execution  item in task loop
+
+    - name:  loooping over the nested list 
+      vars:
+        d_one:
+          - 1
+          - 2
+          - 3
+        d_two:
+          - 6
+          - 5
+          - 4
+      debug:
+       msg: "{{ item }}"
+      loop: "{{ d_one | product(d_two) }}" # product 
+      
+
+
+# until looping 
+#  it is not a loop over items 
+#  it ;is a retry mechanishm 
+
+    - name: loop + until usecase where check multiple url unit each become reachable
+      vars:
+        urls:
+          - https://google.com
+          # - https://docs.ansibledanksjdhaks.com/ #intentially add the fake url so i can experience how things work with until
+      uri:
+        url: "{{ item }}"
+        method: GET
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 3
+      delay: 3
+      loop: "{{ urls }}"
+
+
+# ***Migration from with_X to loop***
+#  in most case loop work best with the loop keyword instead of with_x styles loop 
+#  this loop syntax is  usually  best expressed using filters instead of complex of query or loopup
+# this one example :
+  # -we can use multiple filter with  with_X
+  # with_list 
+  # with_items
+  # with_indexed_items
+  # with_flattened
+  #  with_together 
+  #  with dict
+  #  with_sequence
+  # Reference LInk : https://docs.ansible.com/projects/ansible/latest/playbook_guide/playbooks_loops.html#migrating-from-with-x-to-loop
+    - name: using of with_X for interating where X is filter
+      debug: 
+        msg: "{{ item }}"
+      with_dict: "{{ server_configs }}"
+
+
+# *** date time function
+# utc and fmt are optional arg;;;
+    - debug:
+        msg: "{{ now(utc=true ,fmt='%Y-%m-%d %H:%M:%S') }}"
+
+    

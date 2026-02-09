@@ -1,0 +1,21 @@
+# *** serial ***
+# by default , ansible runs in parallel against all the hoast in the pattern u set in hosts 
+# if we want  to manage only few machines at a time  
+# example: rolling update , u can define how many hosts ansible should manage at a single time using serial keyword
+# ***
+
+
+# instead of parllel executing the task now it execution format is serial 
+
+- name: check how serial work with delegate
+  hosts: worker
+  serial: 1
+  tasks:
+    - name: check ip task a with serial
+      ansible.builtin.command: ip a 
+
+    - name: check ip task b with serial
+      ansible.builtin.command: ip a
+
+
+# 

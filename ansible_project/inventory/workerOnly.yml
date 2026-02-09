@@ -1,0 +1,10 @@
+#worker group
+worker:
+  hosts:
+    k9s-worker.abhishek.local:
+    k9s-worker1.abhishek.local: 
+
+
+allNode:
+  children:
+    worker:

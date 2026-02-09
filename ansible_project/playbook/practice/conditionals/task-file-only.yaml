@@ -1,0 +1,8 @@
+
+
+   
+
+    - name: print message if  check is undefined 
+      debug:
+        msg: "it is undefine"
+      when: check is undefined

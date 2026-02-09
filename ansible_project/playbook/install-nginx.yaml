@@ -1,0 +1,25 @@
+---
+- name: Install and configure nginx on worker node
+  hosts: worker
+  vars:
+    application: nginx
+    state: present
+    destination_path: /var/www/html/index.html
+   
+  become: true
+
+  tasks:
+    - name: Install nginx
+      ansible.builtin.apt:
+        name: "{{ application }}"
+        state: "{{ state }}"
+
+    - name: Write nginx index file
+      ansible.builtin.template:
+        src: index.html
+        dest: "{{ destination_path }}"
+        mode: '0644'
+
+    - name: Read file 
+      ansible.builtin.command: cat "{{ destination_path }}"
+

@@ -1,0 +1,14 @@
+#master group
+master:
+  hosts:
+    k9s-master.abhishek.local:
+# parent/child group relationship
+# parent group are also known as nested group or group of groups 
+# any host that is a member of a child group is automatically a member of the parent group
+# a group can have multiple parent and childer , but not in circular relationship
+# host an group are always 'gloabal if we define a host or group more than once under different branches  or instance the  the host or group remains the same entity
+
+
+allNode:
+  children:
+    master:

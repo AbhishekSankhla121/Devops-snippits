@@ -1,0 +1,48 @@
+# Conditional: 
+
+# basic conditon with when 
+- name: check the os family
+  hosts: master
+  vars:
+    number: [2,4,6,8,10,12,14,16,18,20]
+
+  tasks:
+    - name: print os family
+      debug:
+        msg: "os family is {{ ansible_facts.os_family }}"
+      when: ansible_facts.os_family == 'Debian'
+
+    - name: using condition with register variable
+      ansible.builtin.shell: "whoami"
+      register: result
+
+    - name: print result
+      debug:
+        msg: "{{ result }}"
+      when: result.failed == true # this will not show anyy result to see results change value true to false
+
+#  usign the condition in loops 
+
+    - name: using conditional loops 
+      debug:
+        msg: "{{ item }}"
+      loop: "{{ number }}"
+      when:  item <= 10 
+
+# when use add a conditional to an import statement 
+# we can use conditional import 
+    - name: conditionals with import
+      vars:
+        check: "{{ undef() }}"
+      import_tasks: ./task-file-only.yaml # USING import task we can create the only list of task and use it in multiple time like funciton 
+
+
+# Debugging conditions
+    - name: Debugging the conditons 
+      vars:
+        abhishek: "abhishek"
+      debug:
+        var: abhishek == "abhishek"
+        # var: abhishek == 1
+        # var: 1 == 1
+        # var: true == true

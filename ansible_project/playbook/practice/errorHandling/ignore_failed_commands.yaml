@@ -1,0 +1,14 @@
+# *** Ignore failed commands 
+# [-]  By default ansible executing task on host when task failed on that host
+# [-] we can use ignore_errors to continue despite of failure 
+
+
+- name: ignoring failed command
+  hosts: master
+  tasks:
+    - name: do not count this as failure
+      ansible.builtin.command: /bin/false
+      ignore_errors: true
+    - name: so this task will execute it does not matter if first task is failed
+      ansible.builtin.command: echo "second task running"
+

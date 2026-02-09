@@ -1,0 +1,70 @@
+# blocks create the logical groups of task .
+# blocks also offer ways to handle task errors
+
+#*** Grouping with  block 
+#- all tasks in block inherit directive applied at the block level 
+- name:  started with block - all task in block inherit directive applied at the block level
+  hosts: worker
+  vars:
+    application: nginx
+    state: present
+    destination_path: /var/www/html/index.html
+
+  tasks:
+      
+    - block:
+        - name: install nginx
+          ansible.builtin.apt:
+            name: "{{ application }}"
+            state: "{{ state }}"          
+        - name: Write nginx index file
+          ansible.builtin.template:
+            src: index.html
+            dest: "{{ destination_path }}"
+            mode: '0644'
+
+        - name: Read file 
+          ansible.builtin.command: cat "{{ destination_path }}"
+        
+        - name: check the kali linux family groups
+          debug:
+            msg: |
+              {{ ansible_os_family }}
+              {{ ansible_facts['distribution'] }}
+      when: 
+        - ansible_os_family == "Debian"
+        - ansible_facts['distribution'] == "Kali" 
+
+        # in this block all task only execute when conditon meet 
+
+#*** Error handling with block 
+
+
+
+
+    - block:
+        - name: print message
+          ansible.builtin.debug:
+            msg: "it execute normally"
+        - name: failed this task intenionally 
+          ansible.builtin.command:
+            cmd: /bin/false
+      delegate_to: k9s-master.abhishek.local 
+      run_once: true
+#  Rescue block specify task to run when an earler task in a block fails 
+      rescue:
+        - name: print when error occur
+          debug:
+            msg: i caught an error 
+        - name: failed task name 
+          debug:
+            msg: "{{ ansible_failed_task.name }}" #this shows the failed task name .
+
+#  task in the always section run no matter what task status of the previous block is.
+
+      always:
+        - name: always run this task 
+          debug:
+            msg: "this always execute:_)"
+          
+          

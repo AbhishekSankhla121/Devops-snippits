@@ -1,0 +1,9 @@
+- name: undefine function 
+  hosts: master
+  vars:
+    check: "{{ undef() }}"
+  tasks:
+    - name: print message if  check is undefined 
+      debug:
+        msg: "it is undefine"
+      when: check is undefined

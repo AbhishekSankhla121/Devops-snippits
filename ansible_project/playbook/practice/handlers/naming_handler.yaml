@@ -1,0 +1,20 @@
+- name: Naming handler 
+  hosts: master 
+  become: true
+  tasks:
+    - name: restart everthig
+      command:  echo " this task will restart the web serviices"
+      notify: "restart web services" # notifying the restart we services topic  result in executing all handler listing to regardless of how those handlers are named
+    #  handler must benamed in order for tasks to be able to notify them using "notify" key word
+    # alternatively , handlers can utilize the "listen"  keyword.
+  handlers:
+    - name: start nginx
+      service:
+        name: nginx
+        state: started
+      listen: "restart web services"
+    - name: reload nginx
+      service:
+        name: nginx
+        state: reloaded
+      listen: "restart web services"

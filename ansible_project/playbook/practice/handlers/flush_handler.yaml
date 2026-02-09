@@ -1,0 +1,38 @@
+# *** controlling when handlers run 
+# By defalut, handler run after all task in a particular play have been completed 
+# flush_ handler , when u want handler to run immedialty not at the end 
+
+- name: controlling when handlers run
+  hosts: master 
+  tasks:
+    
+    - name: run the restart nginx  handler immedialty
+      command: echo "trigger restart nginx"
+      notify: 
+        - restart nginx
+    - meta: flush_handlers # run restart now !!!!
+    
+    - name: run this handler at the end  not invoke immedialty
+      command: echo "trigger stop after execute all task"
+      notify:
+        - stop nginx
+    
+    - name: this task will message hello world
+      command: echo "hello world"
+
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
+    - name: stop nginx
+      service:
+        name: nginx
+        state: stopped
+
+
+
+# *** Includes and imports in handler 
+# [-] notifying a dynamic include such as include_task as a handler results  in executing  all task from within the include 
+# [-] its not possible to notify a handler defined inside a dynamic include 

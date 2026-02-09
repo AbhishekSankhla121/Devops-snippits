@@ -1,0 +1,13 @@
+# *** Ignoring unreachable host errors ***
+# [-] we can ignore a task failure due to the host instance being "UNREACHABLE"
+
+- name: this executes, fails , and the failure is ignored
+  hosts: worker
+  ignore_unreachable: true
+  tasks: 
+    - name: another way it this 
+      command: echo "lol"
+      ignore_errors: true
+      ignore_unreachable: true
+
+    

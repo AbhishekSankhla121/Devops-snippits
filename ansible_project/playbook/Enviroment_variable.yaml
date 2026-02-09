@@ -1,0 +1,17 @@
+# *** setting the remote enviromet ***
+# [-] the enviroment keyword allow you to define enviroment variables for tasks , plays, orblock
+- name: Setting up enviroment variable
+  hosts: master
+  environment:
+    PLAYBOOK_NAME: enviroment_variable pplayboook
+  tasks:
+    - name: Run command with env Var 
+      command: echo $MY_VARIABLE
+      command: echo "from $PLAYBOOK_NAME"
+      command: echo "{{ ansible_env.PATH }}" # using existing environment variable
+                                             #  ansible_env container already existing os enviroment variable
+      environment: 
+        MY_VARIABLE: hello world!!
+
+
+

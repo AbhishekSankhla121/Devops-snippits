@@ -1,0 +1,55 @@
+---
+- name: Practicing the manipulate-data
+# using master coz its easy to very things 
+  hosts: master
+  # variable
+  vars:
+    application: psql
+    # A conventional way of requiring a variable to be overriden is to give it undefined using the undef() function.
+    api_key: "{{ undef() }}"
+    status:  false
+    myDebugVar: "hello i am abhishek"
+    str: Abhishek,Sumeet,Prabhat gehlot
+    splitByCommas : "{{ str | split(',') }}"
+    dictionary: "{{ {'name':'abhishek', 'lastname':'sankhla'} | dict2items }}"
+  
+  # vars_prompt:
+  #   - name: username
+  #     prompt: what is your username?
+
+  become: true
+
+  tasks:
+    # - name: Display the logged in user with prompt
+    #   ansible.builtin.debug:
+    #     msg: "{{ username }}"
+
+    - name: handling undeined values
+    # providing the deault values for ariable
+      ansible.builtin.command: "{{ application | default('psql') }} --version"
+
+    - name: define mandatory value
+    # ansible fails if variable in your playbook or command is undefined 
+      ansible.builtin.command: "{{ application | mandatory }} --version"
+
+    - name: defining different values for  ternary operator
+      ansible.builtin.command: "{{ status | ternary('date'  ,'pwd') }}"
+    
+    - name: discovering the datatype using debug
+      ansible.builtin.debug: 
+        msg:
+          - "myDebugVar type={{ myDebugVar | type_debug }}"
+          - "true type={{ true | type_debug }}"
+    
+    - name: transforming string into lists 
+      ansible.builtin.debug:
+        msg: "{{ str | split(',') }}"
+    
+    - name: alternative method
+      ansible.builtin.debug: 
+        msg: "{{ splitByCommas }}"
+
+    - name: transforming data to dictionary
+      ansible.builtin.debug:
+        msg: "{{ dictionary }}"
+    

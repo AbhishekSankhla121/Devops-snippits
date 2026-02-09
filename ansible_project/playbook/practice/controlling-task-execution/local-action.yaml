@@ -1,0 +1,37 @@
+#  local_action= do it on my machine
+# usecases are :
+#  collect information from many host into one local file
+#  genrate config report  locally
+#  centeral loggind and debugging
+# 
+- name: check how local acton work
+  hosts: all
+  tasks:
+
+
+    - name: using of local action
+      local_action:
+        module: lineinfile
+        path: ~/Desktop/hosts.txt
+        line: '{{ inventory_hostname }}'
+      run_once: true #  handle concurrency with a loop on the hosts with `run_once: true`
+
+    - name: collect IP info per host
+      ansible.builtin.shell: ip a
+      register: ip_info
+
+    - name: ensure file exists locally
+      local_action: 
+        module: file
+        path: lol.txt
+        state: touch
+      run_once: true #  handle concurrency with a loop on the hosts with `run_once: true`
+
+# this is modern synax of local_action , we use delegated to local host
+    - name: write ip info locally
+      ansible.builtin.lineinfile:
+        path: lol.txt
+        line: "{{ inventory_hostname }}: {{ ip_info.stdout }}"
+      delegate_to: localhost
+      # run_once: true #when i enable this it only give the first execution results
+

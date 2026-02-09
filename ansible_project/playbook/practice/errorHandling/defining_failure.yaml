@@ -1,0 +1,8 @@
+# *** defining failure ***
+# [-] Ansible let u define what failure means in each task using the "failed_when" conditional
+- name: example of defining failure
+  hosts: master 
+  tasks:
+    - name: we can make this task failed!
+      command: echo "hello"
+      failed_when: true #due too this line the task will failed

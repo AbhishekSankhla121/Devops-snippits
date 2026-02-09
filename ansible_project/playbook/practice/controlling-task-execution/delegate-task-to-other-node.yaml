@@ -1,0 +1,32 @@
+# *** Controlling where tasks run : delegation and local actions
+#  - By default , ansible gathers fact and execute all the tasks on the machine that match hosts line of playbook.
+
+
+# *** Delegating task:
+#  - if we want to perform a task on one host with the reference to other hosts, use the "delegate_to" keyword on task
+#  - this is ideal for managing nodes in loadbalancing pool or for controlling outage window
+#  orrrr
+#  - delegation in ansible is a powerful mechanism that allow executing task on alterative hosts during  playbook runs .
+
+
+- name: execute task instead of master node to worker/worker1 node 
+  hosts: k9s-worker1.abhishek.local       # The play context is worker1.
+  # Tasks normally run on worker1, unless delegated.
+  tasks:
+    - name: play context is for worker1 but now execute for master node that nginx is running or not
+      ansible.builtin.command: ip a
+      delegate_to: k9s-master.abhishek.local
+
+    - name:  Check nginx on worker (task delegated from worker1 context)
+      ansible.builtin.systemd:
+        name: nginx
+      delegate_to: k9s-master.abhishek.local 
+      register: nginx_status
+      # failed_when: false
+      
+    
+    - name: check status of worker nginx
+      debug:
+        msg: "nginx is {{ nginx_status.status.ActiveState }}"
+      delegate_to: k9s-master.abhishek.local 
+      delegate_facts: true

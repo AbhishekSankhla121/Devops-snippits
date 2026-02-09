@@ -1,0 +1,10 @@
+- name: aborting a play on all hosts
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - block:
+        - name: if first task is failed  then rest will not execute
+          command: /bin/false
+        - name: this task will not execute by ansible
+          command: echo "not execute!!"
+      any_errors_fatal: true

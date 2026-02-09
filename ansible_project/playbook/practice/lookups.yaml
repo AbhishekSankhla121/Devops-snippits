@@ -1,0 +1,16 @@
+
+- name: learning Lookup functions 
+  hosts: master 
+  vars:
+    envData: "{{ lookup('file', '.env.example') }}"
+#***Lookup***
+#  lookup plugins retrieve data from outside sources such as file database , keycalues stops, apis and other services  
+#***
+
+  tasks:
+    - debug:
+        msg: "envData value is {{ envData }}"
+#*** The query/q function***
+# this function is shorthand for lookup(..., wantlist=true)
+    - debug:
+        msg: "{{ q('file', '.env.example') }}"
